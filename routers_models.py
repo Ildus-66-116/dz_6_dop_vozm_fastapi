@@ -54,17 +54,38 @@ async def create_order(order: OrdersIn):
 
 @router.get("/users/", response_model=List[User])
 async def read_users():
-    query = users.select()
-    return await database.fetch_all(query)
+    return await database.fetch_all(users.select())
 
 
 @router.get("/goods/", response_model=List[Goods])
 async def read_goods():
-    query = goods.select()
-    return await database.fetch_all(query)
+    return await database.fetch_all(goods.select())
 
 
 @router.get("/orders/", response_model=List[Orders])
 async def read_orders():
-    query = orders.select()
-    return await database.fetch_all(query)
+    return await database.fetch_all(orders.select())
+
+
+@router.get("/users/{id_user}", response_model=User)
+async def read_user(user_id: int):
+    result = await database.fetch_one(users.select().where(users.c.id_user == user_id))
+    if result is None:
+        raise HTTPException(status_code=404, detail=f"User with id {user_id} not found")
+    return result
+
+
+@router.get("/goods/{id_good}", response_model=Goods)
+async def read_good(good_id: int):
+    result = await database.fetch_one(goods.select().where(goods.c.id_good == good_id))
+    if result is None:
+        raise HTTPException(status_code=404, detail=f"Good with id {good_id} not found")
+    return result
+
+
+@router.get("/orders/{id_order}", response_model=Orders)
+async def read_order(order_id: int):
+    result = await database.fetch_one(orders.select().where(orders.c.id_order == order_id))
+    if result is None:
+        raise HTTPException(status_code=404, detail=f"Order with id {order_id} not found")
+    return result

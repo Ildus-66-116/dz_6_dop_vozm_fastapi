@@ -21,7 +21,7 @@ users = sqlalchemy.Table(
 goods = sqlalchemy.Table(
     "goods",
     metadata,
-    sqlalchemy.Column("id_goods", sqlalchemy.Integer, primary_key=True),
+    sqlalchemy.Column("id_good", sqlalchemy.Integer, primary_key=True),
     sqlalchemy.Column("name", sqlalchemy.String(128)),
     sqlalchemy.Column("price", sqlalchemy.FLOAT),
     sqlalchemy.Column("description", sqlalchemy.String(128)),
@@ -31,7 +31,7 @@ orders = sqlalchemy.Table(
     metadata,
     sqlalchemy.Column("id_order", sqlalchemy.Integer, primary_key=True),
     sqlalchemy.Column(
-        "id_good", sqlalchemy.Integer, sqlalchemy.ForeignKey(goods.c.id_goods)
+        "id_good", sqlalchemy.Integer, sqlalchemy.ForeignKey(goods.c.id_good)
     ),
     sqlalchemy.Column(
         "id_user", sqlalchemy.Integer, sqlalchemy.ForeignKey(users.c.id_user)
