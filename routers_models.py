@@ -89,3 +89,21 @@ async def read_order(order_id: int):
     if result is None:
         raise HTTPException(status_code=404, detail=f"Order with id {order_id} not found")
     return result
+
+
+@router.put("/users/{id_user}", response_model=User)
+async def update_user(user_id: int, new_user: UserIn):
+    await database.execute(users.update().where(users.c.id_user == user_id).values(**new_user.dict()))
+    return {**new_user.dict(), "id_user": user_id}
+
+
+@router.put("/goods/{id_good}", response_model=Goods)
+async def update_good(user_id: int, new_user: GoodsIn):
+    await database.execute(goods.update().where(goods.c.id_good == user_id).values(**new_user.dict()))
+    return {**new_user.dict(), "id_good": user_id}
+
+
+@router.put("/orders/{id_order}", response_model=Orders)
+async def update_order(user_id: int, new_user: OrdersIn):
+    await database.execute(orders.update().where(orders.c.id_order == user_id).values(**new_user.dict()))
+    return {**new_user.dict(), "id_order": user_id}
