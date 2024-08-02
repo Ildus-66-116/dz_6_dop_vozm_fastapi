@@ -18,19 +18,6 @@ from the_flask_and_fastapi_framework.dz.dz_6_dop_vozm_fastapi.models import (
 router = APIRouter()
 
 
-# @router.get("/fake_users/{count}")
-# async def create_users(count: int):
-#     for i in range(1, count + 1):
-#         query = users.insert().values(
-#             firstname=f"firstname{i}",
-#             lastname=f"lastname{i + 10}",
-#             email=f"mail{i}@mail.ru",
-#             password=f"p{i}a{i + 1}s{i}s{i + 2}",
-#         )
-#         await database.execute(query)
-#     return {"message": f"{count} fake users create"}
-
-
 @router.post("/users/", response_model=User)
 async def create_user(user: UserIn):
     query = users.insert().values(**user.dict())
@@ -85,13 +72,9 @@ async def read_good(good_id: int):
 
 @router.get("/orders/{id_order}", response_model=Orders)
 async def read_order(order_id: int):
-    result = await database.fetch_one(
-        orders.select().where(orders.c.id_order == order_id)
-    )
+    result = await database.fetch_one(orders.select().where(orders.c.id_order == order_id))
     if result is None:
-        raise HTTPException(
-            status_code=404, detail=f"Order with id {order_id} not found"
-        )
+        raise HTTPException(status_code=404, detail=f"Order with id {order_id} not found")
     return result
 
 
@@ -126,3 +109,30 @@ async def update_order(order_id: int, new_user: OrdersIn):
     if result is None:
         raise HTTPException(status_code=404, detail=f"Order with id {order_id} not found")
     return {**new_user.dict(), "id_order": order_id}
+
+
+@router.delete("/users/{id_user}")
+async def delete_user(user_id: int):
+    result = await database.fetch_one(users.select().where(users.c.id_user == user_id))
+    if result is None:
+        raise HTTPException(status_code=404, detail=f"User with id {user_id} not found")
+    await database.execute(users.delete().where(users.c.id_user == user_id))
+    return {"message": f"User {user_id} deleted"}
+
+
+@router.delete("/goods/{id_good}")
+async def delete_good(good_id: int):
+    result = await database.fetch_one(goods.select().where(goods.c.id_good == good_id))
+    if result is None:
+        raise HTTPException(status_code=404, detail=f"Good with id {good_id} not found")
+    await database.execute(goods.delete().where(goods.c.id_good == good_id))
+    return {"message": f"Good {good_id} deleted"}
+
+
+@router.delete("/orders/{id_order}")
+async def delete_order(order_id: int):
+    result = await database.fetch_one(orders.select().where(orders.c.id_order == order_id))
+    if result is None:
+        raise HTTPException(status_code=404, detail=f"Order with id {order_id} not found")
+    await database.execute(orders.delete().where(orders.c.id_order == order_id))
+    return {"message": f"Order {order_id} deleted"}
