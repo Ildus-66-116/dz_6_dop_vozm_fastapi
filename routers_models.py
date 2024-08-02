@@ -100,20 +100,29 @@ async def update_user(user_id: int, new_user: UserIn):
     await database.execute(
         users.update().where(users.c.id_user == user_id).values(**new_user.dict())
     )
+    result = await database.fetch_one(users.select().where(users.c.id_user == user_id))
+    if result is None:
+        raise HTTPException(status_code=404, detail=f"User with id {user_id} not found")
     return {**new_user.dict(), "id_user": user_id}
 
 
 @router.put("/goods/{id_good}", response_model=Goods)
-async def update_good(user_id: int, new_user: GoodsIn):
+async def update_good(good_id: int, new_good: GoodsIn):
     await database.execute(
-        goods.update().where(goods.c.id_good == user_id).values(**new_user.dict())
+        goods.update().where(goods.c.id_good == good_id).values(**new_good.dict())
     )
-    return {**new_user.dict(), "id_good": user_id}
+    result = await database.fetch_one(goods.select().where(goods.c.id_good == good_id))
+    if result is None:
+        raise HTTPException(status_code=404, detail=f"Good with id {good_id} not found")
+    return {**new_good.dict(), "id_good": good_id}
 
 
 @router.put("/orders/{id_order}", response_model=Orders)
-async def update_order(user_id: int, new_user: OrdersIn):
+async def update_order(order_id: int, new_user: OrdersIn):
     await database.execute(
-        orders.update().where(orders.c.id_order == user_id).values(**new_user.dict())
+        orders.update().where(orders.c.id_order == order_id).values(**new_user.dict())
     )
-    return {**new_user.dict(), "id_order": user_id}
+    result = await database.fetch_one(orders.select().where(orders.c.id_order == order_id))
+    if result is None:
+        raise HTTPException(status_code=404, detail=f"Order with id {order_id} not found")
+    return {**new_user.dict(), "id_order": order_id}
