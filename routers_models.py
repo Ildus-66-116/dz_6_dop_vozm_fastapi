@@ -8,7 +8,9 @@ from the_flask_and_fastapi_framework.dz.dz_6_dop_vozm_fastapi.db import (
     orders,
     DataType,
     insert_into_table,
-    fetch_by_id, update_and_fetch_by_id,
+    fetch_by_id,
+    update_and_fetch_by_id,
+    delete_item,
 )
 
 from the_flask_and_fastapi_framework.dz.dz_6_dop_vozm_fastapi.models import (
@@ -85,29 +87,15 @@ async def update_order(id_order: int, new_order: OrdersIn):
 
 
 @router.delete("/users/{id_user}")
-async def delete_user(user_id: int):
-    result = await database.fetch_one(users.select().where(users.c.id == user_id))
-    if result is None:
-        raise HTTPException(status_code=404, detail=f"User with id {user_id} not found")
-    await database.execute(users.delete().where(users.c.id == user_id))
-    return {"message": f"User {user_id} deleted"}
+async def delete_user(id_user: int):
+    return await delete_item(users, id_user, f"User {id_user} deleted")
 
 
 @router.delete("/goods/{id_good}")
-async def delete_good(good_id: int):
-    result = await database.fetch_one(goods.select().where(goods.c.id == good_id))
-    if result is None:
-        raise HTTPException(status_code=404, detail=f"Good with id {good_id} not found")
-    await database.execute(goods.delete().where(goods.c.id == good_id))
-    return {"message": f"Good {good_id} deleted"}
+async def delete_good(id_good: int):
+    return await delete_item(goods, id_good, f"Good {id_good} deleted")
 
 
 @router.delete("/orders/{id_order}")
-async def delete_order(order_id: int):
-    result = await database.fetch_one(orders.select().where(orders.c.id == order_id))
-    if result is None:
-        raise HTTPException(
-            status_code=404, detail=f"Order with id {order_id} not found"
-        )
-    await database.execute(orders.delete().where(orders.c.id == order_id))
-    return {"message": f"Order {order_id} deleted"}
+async def delete_order(id_order: int):
+    return await delete_item(orders, id_order, f"Order {id_order} deleted")

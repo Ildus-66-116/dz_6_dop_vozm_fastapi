@@ -4,7 +4,6 @@ import sqlalchemy
 from enum import Enum
 from fastapi import HTTPException
 from sqlalchemy import select
-
 from settings import settings
 
 DATABASE_URL = settings.DATABASE_URL
@@ -72,11 +71,29 @@ async def fetch_by_id(table_name: str, id_value: int, model: Type):
     return result
 
 
-async def update_and_fetch_by_id(table_name: str, id_value: int, new_data: dict, model: Type):
+async def update_and_fetch_by_id(
+    table_name: str, id_value: int, new_data: dict, model: Type
+):
     await database.execute(
         table_name.update().where(table_name.c.id == id_value).values(**new_data)
     )
-    result = await database.fetch_one(table_name.select().where(table_name.c.id == id_value))
+    result = await database.fetch_one(
+        table_name.select().where(table_name.c.id == id_value)
+    )
     if result is None:
-        raise HTTPException(status_code=404, detail=f"{model.__name__} with id {id_value} not found")
+        raise HTTPException(
+            status_code=404, detail=f"{model.__name__} with id {id_value} not found"
+        )
     return {**new_data, "id": id_value}
+
+
+async def delete_item(table_name: str, id_value: int, success_message: str):
+    result = await database.fetch_one(
+        table_name.select().where(table_name.c.id == id_value)
+    )
+    if result is None:
+        raise HTTPException(
+            status_code=404, detail=f"{table_name} with id {id_value} not found"
+        )
+    await database.execute(table_name.delete().where(table_name.c.id == id_value))
+    return {"message": success_message}
