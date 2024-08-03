@@ -9,9 +9,9 @@ from the_flask_and_fastapi_framework.dz.dz_6_dop_vozm_fastapi.db import (
     database,
     goods,
     orders,
-    DataType
+    DataType,
+    insert_into_table
 )
-from the_flask_and_fastapi_framework.dz.dz_6_dop_vozm_fastapi.func_gruid import create
 
 from the_flask_and_fastapi_framework.dz.dz_6_dop_vozm_fastapi.models import (
     User,
@@ -27,23 +27,17 @@ router = APIRouter()
 
 @router.post("/users/", response_model=User)
 async def create_user(user: UserIn):
-    query = users.insert().values(**user.dict())
-    last_record_id = await database.execute(query)
-    return {**user.dict(), "id_user": last_record_id}
+    return await insert_into_table("users", user)
 
 
 @router.post("/goods/", response_model=Goods)
 async def create_goods(good: GoodsIn):
-    query = goods.insert().values(**good.dict())
-    last_record_id = await database.execute(query)
-    return {**good.dict(), "id_good": last_record_id}
+    return await insert_into_table("goods", good)
 
 
 @router.post("/orders/", response_model=Orders)
 async def create_order(order: OrdersIn):
-    query = orders.insert().values(**order.dict())
-    last_record_id = await database.execute(query)
-    return {**order.dict(), "id_order": last_record_id}
+    return await insert_into_table("orders", order)
 
 
 @router.get("/data/{type}/", response_model=Union[List[User], List[Goods], List[Orders]])

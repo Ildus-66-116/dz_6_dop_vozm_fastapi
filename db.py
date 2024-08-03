@@ -1,6 +1,10 @@
 import databases
 import sqlalchemy
 from enum import Enum
+from pydantic import BaseModel
+from typing import Type, Dict, Any
+from sqlalchemy.ext.asyncio import async_session
+
 from settings import settings
 
 DATABASE_URL = settings.DATABASE_URL
@@ -52,3 +56,12 @@ class DataType(str, Enum):
     users = "users"
     goods = "goods"
     orders = "orders"
+
+
+async def insert_into_table(table_name_str: str, item: dict):
+    values_dict = item.dict()
+    table_object = metadata.tables[table_name_str]
+    value_str = table_name_str[:-1]
+    query = table_object.insert().values(**values_dict)
+    last_record_id = await database.execute(query)
+    return {**values_dict, "id_" + value_str.lower(): last_record_id}
