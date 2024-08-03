@@ -1,9 +1,7 @@
 from typing import Type
-
 import databases
 import sqlalchemy
 from enum import Enum
-
 from fastapi import HTTPException
 from sqlalchemy import select
 
@@ -37,12 +35,8 @@ orders = sqlalchemy.Table(
     "orders",
     metadata,
     sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
-    sqlalchemy.Column(
-        "id_good", sqlalchemy.Integer, sqlalchemy.ForeignKey(goods.c.id)
-    ),
-    sqlalchemy.Column(
-        "id_user", sqlalchemy.Integer, sqlalchemy.ForeignKey(users.c.id)
-    ),
+    sqlalchemy.Column("id_good", sqlalchemy.Integer, sqlalchemy.ForeignKey(goods.c.id)),
+    sqlalchemy.Column("id_user", sqlalchemy.Integer, sqlalchemy.ForeignKey(users.c.id)),
     sqlalchemy.Column("data_order", sqlalchemy.DATE),
     sqlalchemy.Column("status", sqlalchemy.BOOLEAN),
 )
@@ -72,7 +66,17 @@ async def fetch_by_id(table_name: str, id_value: int, model: Type):
     stmt = select(table_name).where(table_name.c.id == id_value)
     result = await database.fetch_one(stmt)
     if result is None:
-        raise HTTPException(status_code=404, detail=f"{model.__name__} with id {id_value} not found")
+        raise HTTPException(
+            status_code=404, detail=f"{model.__name__} with id {id_value} not found"
+        )
     return result
 
 
+async def update_and_fetch_by_id(table_name: str, id_value: int, new_data: dict, model: Type):
+    await database.execute(
+        table_name.update().where(table_name.c.id == id_value).values(**new_data)
+    )
+    result = await database.fetch_one(table_name.select().where(table_name.c.id == id_value))
+    if result is None:
+        raise HTTPException(status_code=404, detail=f"{model.__name__} with id {id_value} not found")
+    return {**new_data, "id": id_value}
