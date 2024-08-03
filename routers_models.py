@@ -1,11 +1,18 @@
-from typing import List
-from fastapi import APIRouter, HTTPException
+from typing import List, Union
+
+import sqlalchemy
+from fastapi import APIRouter, HTTPException, Query, Path
+from pydantic import BaseModel
+
 from the_flask_and_fastapi_framework.dz.dz_6_dop_vozm_fastapi.db import (
     users,
     database,
     goods,
     orders,
+    DataType
 )
+from the_flask_and_fastapi_framework.dz.dz_6_dop_vozm_fastapi.func_gruid import create
+
 from the_flask_and_fastapi_framework.dz.dz_6_dop_vozm_fastapi.models import (
     User,
     UserIn,
@@ -39,19 +46,16 @@ async def create_order(order: OrdersIn):
     return {**order.dict(), "id_order": last_record_id}
 
 
-@router.get("/users/", response_model=List[User])
-async def read_users():
-    return await database.fetch_all(users.select())
-
-
-@router.get("/goods/", response_model=List[Goods])
-async def read_goods():
-    return await database.fetch_all(goods.select())
-
-
-@router.get("/orders/", response_model=List[Orders])
-async def read_orders():
-    return await database.fetch_all(orders.select())
+@router.get("/data/{type}/", response_model=Union[List[User], List[Goods], List[Orders]])
+async def read_data(type: DataType = Path(..., description="Type of data to retrieve:")):
+    if type == "users":
+        return await database.fetch_all(users.select())
+    elif type == "goods":
+        return await database.fetch_all(goods.select())
+    elif type == "orders":
+        return await database.fetch_all(orders.select())
+    else:
+        raise HTTPException(status_code=400, detail="Invalid data type")
 
 
 @router.get("/users/{id_user}", response_model=User)

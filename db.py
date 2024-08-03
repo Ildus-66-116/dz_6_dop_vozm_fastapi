@@ -1,6 +1,6 @@
 import databases
 import sqlalchemy
-
+from enum import Enum
 from settings import settings
 
 DATABASE_URL = settings.DATABASE_URL
@@ -46,3 +46,9 @@ engine = sqlalchemy.create_engine(
 )
 
 metadata.create_all(engine)
+
+
+class DataType(str, Enum):
+    users = "users"
+    goods = "goods"
+    orders = "orders"
