@@ -1,5 +1,6 @@
 import datetime
 from pydantic import BaseModel, Field, EmailStr
+import bcrypt
 
 current_datetime = datetime.datetime.now()
 
@@ -9,6 +10,10 @@ class UserIn(BaseModel):
     lastname: str = Field(..., title="Lastname", max_length=50)
     email: EmailStr = Field(..., title="Email", max_length=128)
     password: str = Field(..., title="Password", min_length=4)
+
+    def hash_password(self):
+        self.password = bcrypt.hashpw(
+            self.password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
 
 class User(BaseModel):

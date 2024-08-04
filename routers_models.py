@@ -27,6 +27,7 @@ router = APIRouter()
 
 @router.post("/users/", response_model=User)
 async def create_user(user: UserIn):
+    user.hash_password()
     return await insert_into_table("users", user)
 
 
@@ -44,7 +45,7 @@ async def create_order(order: OrdersIn):
     "/data/{type}/", response_model=Union[List[User], List[Goods], List[Orders]]
 )
 async def read_data(
-        type: DataType = Path(..., description="Type of data to retrieve:")
+    type: DataType = Path(..., description="Type of data to retrieve:")
 ):
     if type == "users":
         return await database.fetch_all(users.select())
